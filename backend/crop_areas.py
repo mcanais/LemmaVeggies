@@ -1,6 +1,7 @@
 """Crop every planogram area out of every camera image.
 
-Output: <out>/<camera_id>/<area_id>/<timestamp>.jpg plus <out>/index.csv
+Output: <out>/<camera_id>/<area_id>/<timestamp>.png plus <out>/index.csv
+(merged with an existing index, so new image batches can be added to the same folder)
 (and <out>/_overlays/<camera_id>.jpg with --overlays).
 """
 import argparse
@@ -54,7 +55,8 @@ def main() -> None:
                     crop = warp_area(img, a.quad, size)
                 else:
                     crop = bbox_area(img, a.quad, mask_outside=not args.no_mask)
-                crop_path = args.out / camera_id / a.area_id / img_path.name
+                # PNG (lossless): JPEG re-compression shifts embeddings vs. cropping in memory at predict time
+                crop_path = args.out / camera_id / a.area_id / f"{img_path.stem}.png"
                 crop_path.parent.mkdir(parents=True, exist_ok=True)
                 cv2.imwrite(str(crop_path), crop)
                 rows.append({
@@ -67,11 +69,18 @@ def main() -> None:
                 })
         print(f"{camera_id}: {len(images)} images x {len(areas[camera_id])} areas")
 
-    with open(args.out / "index.csv", "w", newline="", encoding="utf-8") as f:
+    # Merge with an existing index so new image batches can be added to the same output folder.
+    index_path = args.out / "index.csv"
+    merged = {}
+    if index_path.exists():
+        with open(index_path, encoding="utf-8") as f:
+            merged = {r["crop_path"]: r for r in csv.DictReader(f)}
+    merged.update((r["crop_path"], r) for r in rows)
+    with open(index_path, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0]) if rows else ["crop_path"])
         w.writeheader()
-        w.writerows(rows)
-    print(f"wrote {len(rows)} crops to {args.out}")
+        w.writerows(merged.values())
+    print(f"wrote {len(rows)} crops to {args.out} ({len(merged)} in index)")
 
 
 if __name__ == "__main__":

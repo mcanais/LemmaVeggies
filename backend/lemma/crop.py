@@ -52,3 +52,18 @@ def draw_areas(img: np.ndarray, areas) -> np.ndarray:
         cv2.putText(out, a.area_id, (x - 30, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 3)
         cv2.putText(out, a.area_id, (x - 30, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
     return out
+
+
+def inner_tiles(crop: np.ndarray, keep: float = 0.7, grid: int = 2) -> list[np.ndarray]:
+    """Centre `keep` share of a crop (drops crate borders and price labels), cut into grid x grid tiles.
+
+    Used for variety recognition, so the model looks at the fruit rather than the crate.
+    """
+    h, w = crop.shape[:2]
+    mh, mw = int(h * (1 - keep) / 2), int(w * (1 - keep) / 2)
+    inner = crop[mh:h - mh, mw:w - mw]
+    ih, iw = inner.shape[:2]
+    return [
+        inner[r * ih // grid:(r + 1) * ih // grid, c * iw // grid:(c + 1) * iw // grid]
+        for r in range(grid) for c in range(grid)
+    ]
