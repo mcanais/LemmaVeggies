@@ -1,1 +1,3 @@
 *.nix
+.claude/
+__pycache__/
