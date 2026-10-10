@@ -104,7 +104,7 @@ python classify.py    # models/model.joblib + crops -> submission.json
 
 `train.py` embeds each labelled crop with DINOv2 (`dinov2_vits14`, downloaded on first use) and
 fits a logistic regression from embedding to stock value. It also stores one prototype per area,
-the mean embedding of the crops labelled compliant. Options: `--labels` (default `human.jsonl`),
+the mean embedding of the crops labelled compliant. Options: `--labels` (default `../labels/human.jsonl`, the labelling dashboard's output),
 `--crops`, `--model`.
 
 `classify.py` loads the model and, for every crop, picks the stock level with the best expected

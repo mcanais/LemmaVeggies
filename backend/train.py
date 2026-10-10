@@ -24,7 +24,7 @@ COMPLIANCE_THRESHOLD = 0.65  # cosine similarity below this -> not compliant
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--labels", type=Path, default=ROOT / "human.jsonl")
+    ap.add_argument("--labels", type=Path, default=ROOT.parent / "labels" / "human.jsonl")
     ap.add_argument("--crops", type=Path, default=ROOT / "crops", help="output folder of crop_areas.py")
     ap.add_argument("--model", type=Path, default=ROOT / "models" / "model.joblib")
     args = ap.parse_args()
