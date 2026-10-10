@@ -17,7 +17,7 @@ dinov2 = torch.hub.load("facebookresearch/dinov2", "dinov2_vits14").to(device)
 dinov2.eval()
 
 
-HUMAN_FILE = "human.jsonl"
+HUMAN_FILE = "/Users/laurasofia/programming/extras/junxtion-hackathon/LemmaVeggies/labels/human.jsonl"
 
 
 # DINOv2 requires 224x224 crops with ImageNet normalization
