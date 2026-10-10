@@ -1,0 +1,96 @@
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --text: #1c2024;
+  --muted: #60646c;
+  --border: #e0e1e6;
+  --accent: #2f6f4f;
+  --floor: #eef0f3;
+  --app-header-h: 52px;
+  --tabbar-h: 60px;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111113;
+    --surface: #1c1d20;
+    --text: #edeef0;
+    --muted: #a0a4ab;
+    --border: #2e3035;
+    --accent: #6fcf97;
+    --floor: #18191b;
+  }
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); }
+a { color: var(--accent); }
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: var(--app-header-h);
+  padding: 0 16px;
+  padding-top: env(safe-area-inset-top);
+  box-sizing: content-box;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.brand { font-weight: 700; font-size: 1.15rem; text-decoration: none; color: var(--text); }
+.subtitle { color: var(--muted); font-size: 0.9rem; }
+.app-main { max-width: 1200px; margin: 0 auto; padding: 16px; }
+.app-main.wide { max-width: 2200px; padding: 16px 24px; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+}
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+.error { color: #e5484d; }
+.muted { color: var(--muted); }
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 6px 12px;
+}
+button[aria-pressed='true'] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+
+/* ---- Phones (keep the 768px in sync with composables/useMediaQuery.js) ---- */
+@media (max-width: 768px) {
+  :root { --app-header-h: 48px; }
+  .subtitle { display: none; }
+  .app-main, .app-main.wide {
+    padding: 12px;
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+  .card { padding: 12px; }
+}
+
+/* Comfortable touch targets on touch screens. */
+@media (pointer: coarse) {
+  button { min-height: 44px; }
+}
