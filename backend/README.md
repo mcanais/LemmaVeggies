@@ -19,10 +19,14 @@ On the current dataset this gives 181 images → 1,962 crops.
 ```
 backend/
 ├── crop_areas.py        # CLI: crop all images
+├── train.py             # CLI: train the model from labelled crops -> models/model.joblib
+├── classify.py          # CLI: classify all crops with a saved model -> submission.json
 ├── lemma/
 │   ├── planogram.py     # load_areas(): planogram.json -> {camera_id: [Area]}
-│   └── crop.py          # bbox_area(), warp_area(), draw_areas()
-├── requirements.txt     # numpy, opencv-python-headless
+│   ├── crop.py          # bbox_area(), warp_area(), draw_areas()
+│   └── features.py      # FeatureExtractor: DINOv2 embedding of a crop
+├── models/              # saved models
+├── requirements.txt     # numpy, opencv, torch, torchvision, pillow, scikit-learn, joblib
 ├── shell.nix            # NixOS dev shell (native libs for pip wheels)
 └── crops/               # generated output (git-ignored)
 ```
@@ -88,3 +92,24 @@ Crops are grouped by area, so all frames of the same basket across the day sit t
 - Early-morning frames can show shelves covered (e.g. camera 6383), so they don't reflect stock.
 - Products move during the day. For example, area 6215_3 (planned: oranges) holds bananas later on. That is the non-compliance case to detect.
 - Scoring penalises overestimating stock (−3) more than underestimating it (−2), so stock predictions should lean towards the lower level when unsure.
+
+## Model
+
+Training and classification are separate, so a trained model can be saved and reused.
+
+```sh
+python train.py       # labels + crops -> models/model.joblib
+python classify.py    # models/model.joblib + crops -> submission.json
+```
+
+`train.py` embeds each labelled crop with DINOv2 (`dinov2_vits14`, downloaded on first use) and
+fits a logistic regression from embedding to stock value. It also stores one prototype per area,
+the mean embedding of the crops labelled compliant. Options: `--labels` (default `human.jsonl`),
+`--crops`, `--model`.
+
+`classify.py` loads the model and, for every crop, picks the stock level with the best expected
+score under the brief's points and marks the area non-compliant when its cosine similarity to the
+area's prototype is below the stored threshold (0.65). Options: `--model`, `--crops`, `--out`.
+
+For the validation images: `python crop_areas.py --images <val dir> --out crops_val`, then
+`python classify.py --crops crops_val --out submission_val.json`.
