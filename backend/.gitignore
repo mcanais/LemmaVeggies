@@ -1,3 +1,5 @@
 .venv/
 crops/
 __pycache__/
+cache/
+external/

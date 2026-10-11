@@ -1,0 +1,621 @@
+1962 areas, 967 labelled (100 non-compliant), 91 labelled images, granularity category
+== clip
+      area_cosine_0.65: fold 1/5
+      area_cosine_0.65: fold 2/5
+      area_cosine_0.65: fold 3/5
+      area_cosine_0.65: fold 4/5
+      area_cosine_0.65: fold 5/5
+  clip    images   area_cosine_0.65 points   769  correct 901/967  caught 46/100  false alarms 12  (0s)
+      area_cosine: fold 1/5
+      area_cosine: fold 2/5
+      area_cosine: fold 3/5
+      area_cosine: fold 4/5
+      area_cosine: fold 5/5
+  clip    images   area_cosine      points   778  correct 904/967  caught 65/100  false alarms 28  (0s)
+      classifier: fold 1/5
+      classifier: fold 2/5
+      classifier: fold 3/5
+      classifier: fold 4/5
+      classifier: fold 5/5
+  clip    images   classifier       points   811  correct 915/967  caught 52/100  false alarms 4  product id 806/817  (23s)
+      text: fold 1/5
+      text: fold 2/5
+      text: fold 3/5
+      text: fold 4/5
+      text: fold 5/5
+  clip    images   text             points   787  correct 907/967  caught 40/100  false alarms 0  (0s)
+      area_cosine_0.65: fold 1/14
+      area_cosine_0.65: fold 2/14
+      area_cosine_0.65: fold 3/14
+      area_cosine_0.65: fold 4/14
+      area_cosine_0.65: fold 5/14
+      area_cosine_0.65: fold 6/14
+      area_cosine_0.65: fold 7/14
+      area_cosine_0.65: fold 8/14
+      area_cosine_0.65: fold 9/14
+      area_cosine_0.65: fold 10/14
+      area_cosine_0.65: fold 11/14
+      area_cosine_0.65: fold 12/14
+      area_cosine_0.65: fold 13/14
+      area_cosine_0.65: fold 14/14
+  clip    cameras  area_cosine_0.65 points   667  correct 867/967  caught 0/100  false alarms 0  (0s)
+      area_cosine: fold 1/14
+      area_cosine: fold 2/14
+      area_cosine: fold 3/14
+      area_cosine: fold 4/14
+      area_cosine: fold 5/14
+      area_cosine: fold 6/14
+      area_cosine: fold 7/14
+      area_cosine: fold 8/14
+      area_cosine: fold 9/14
+      area_cosine: fold 10/14
+      area_cosine: fold 11/14
+      area_cosine: fold 12/14
+      area_cosine: fold 13/14
+      area_cosine: fold 14/14
+  clip    cameras  area_cosine      points   667  correct 867/967  caught 0/100  false alarms 0  (0s)
+      classifier: fold 1/14
+      classifier: fold 2/14
+      classifier: fold 3/14
+      classifier: fold 4/14
+      classifier: fold 5/14
+      classifier: fold 6/14
+      classifier: fold 7/14
+      classifier: fold 8/14
+      classifier: fold 9/14
+      classifier: fold 10/14
+      classifier: fold 11/14
+      classifier: fold 12/14
+      classifier: fold 13/14
+      classifier: fold 14/14
+  clip    cameras  classifier       points   679  correct 871/967  caught 13/100  false alarms 9  product id 196/817  (66s)
+      text: fold 1/14
+      text: fold 2/14
+      text: fold 3/14
+      text: fold 4/14
+      text: fold 5/14
+      text: fold 6/14
+      text: fold 7/14
+      text: fold 8/14
+      text: fold 9/14
+      text: fold 10/14
+      text: fold 11/14
+      text: fold 12/14
+      text: fold 13/14
+      text: fold 14/14
+  clip    cameras  text             points   748  correct 894/967  caught 27/100  false alarms 0  (0s)
+  clip    final classifier: threshold 0.3, flags 109 of 1962 areas
+  clip    time: 695 ms/image, 64.7 ms/area, training 1.2s
+== dinov2
+      area_cosine_0.65: fold 1/5
+      area_cosine_0.65: fold 2/5
+      area_cosine_0.65: fold 3/5
+      area_cosine_0.65: fold 4/5
+      area_cosine_0.65: fold 5/5
+  dinov2  images   area_cosine_0.65 points   796  correct 910/967  caught 79/100  false alarms 36  (0s)
+      area_cosine: fold 1/5
+      area_cosine: fold 2/5
+      area_cosine: fold 3/5
+      area_cosine: fold 4/5
+      area_cosine: fold 5/5
+  dinov2  images   area_cosine      points   817  correct 917/967  caught 79/100  false alarms 29  (0s)
+      classifier: fold 1/5
+      classifier: fold 2/5
+      classifier: fold 3/5
+      classifier: fold 4/5
+      classifier: fold 5/5
+  dinov2  images   classifier       points   835  correct 923/967  caught 60/100  false alarms 4  product id 808/817  (29s)
+      area_cosine_0.65: fold 1/14
+      area_cosine_0.65: fold 2/14
+      area_cosine_0.65: fold 3/14
+      area_cosine_0.65: fold 4/14
+      area_cosine_0.65: fold 5/14
+      area_cosine_0.65: fold 6/14
+      area_cosine_0.65: fold 7/14
+      area_cosine_0.65: fold 8/14
+      area_cosine_0.65: fold 9/14
+      area_cosine_0.65: fold 10/14
+      area_cosine_0.65: fold 11/14
+      area_cosine_0.65: fold 12/14
+      area_cosine_0.65: fold 13/14
+      area_cosine_0.65: fold 14/14
+  dinov2  cameras  area_cosine_0.65 points   667  correct 867/967  caught 0/100  false alarms 0  (0s)
+      area_cosine: fold 1/14
+      area_cosine: fold 2/14
+      area_cosine: fold 3/14
+      area_cosine: fold 4/14
+      area_cosine: fold 5/14
+      area_cosine: fold 6/14
+      area_cosine: fold 7/14
+      area_cosine: fold 8/14
+      area_cosine: fold 9/14
+      area_cosine: fold 10/14
+      area_cosine: fold 11/14
+      area_cosine: fold 12/14
+      area_cosine: fold 13/14
+      area_cosine: fold 14/14
+  dinov2  cameras  area_cosine      points   667  correct 867/967  caught 0/100  false alarms 0  (0s)
+      classifier: fold 1/14
+      classifier: fold 2/14
+      classifier: fold 3/14
+      classifier: fold 4/14
+      classifier: fold 5/14
+      classifier: fold 6/14
+      classifier: fold 7/14
+      classifier: fold 8/14
+      classifier: fold 9/14
+      classifier: fold 10/14
+      classifier: fold 11/14
+      classifier: fold 12/14
+      classifier: fold 13/14
+      classifier: fold 14/14
+  dinov2  cameras  classifier       points   721  correct 885/967  caught 24/100  false alarms 6  product id 217/817  (75s)
+  dinov2  final classifier: threshold 0.2, flags 100 of 1962 areas
+  dinov2  time: 862 ms/image, 80.2 ms/area, training 1.5s
+wrote /home/afsc/Downloads/hack/LemmaVeggies/backend/results/phase1.md and /home/afsc/Downloads/hack/LemmaVeggies/backend/results/phase1_predictions.csv
+1962 areas, 967 labelled (100 non-compliant), 91 labelled images, granularity category
+== clip
+      area_cosine_0.65: fold 1/5
+      area_cosine_0.65: fold 2/5
+      area_cosine_0.65: fold 3/5
+      area_cosine_0.65: fold 4/5
+      area_cosine_0.65: fold 5/5
+  clip    images   area_cosine_0.65 points   769  correct 901/967  caught 46/100  false alarms 12  (0s)
+      area_cosine: fold 1/5
+      area_cosine: fold 2/5
+      area_cosine: fold 3/5
+      area_cosine: fold 4/5
+      area_cosine: fold 5/5
+  clip    images   area_cosine      points   778  correct 904/967  caught 65/100  false alarms 28  (0s)
+      classifier: fold 1/5
+      classifier: fold 2/5
+      classifier: fold 3/5
+      classifier: fold 4/5
+      classifier: fold 5/5
+  clip    images   classifier       points   811  correct 915/967  caught 52/100  false alarms 4  product id 806/817  (22s)
+      gsd_only: fold 1/5
+      gsd_only: fold 2/5
+      gsd_only: fold 3/5
+      gsd_only: fold 4/5
+      gsd_only: fold 5/5
+  clip    images   gsd_only         points   445  correct 793/967  caught 27/100  false alarms 101  product id 361/817  (3s)
+      classifier+gsd: fold 1/5
+      classifier+gsd: fold 2/5
+      classifier+gsd: fold 3/5
+      classifier+gsd: fold 4/5
+      classifier+gsd: fold 5/5
+  clip    images   classifier+gsd   points   805  correct 913/967  caught 47/100  false alarms 1  product id 798/817  (73s)
+      text: fold 1/5
+      text: fold 2/5
+      text: fold 3/5
+      text: fold 4/5
+      text: fold 5/5
+  clip    images   text             points   787  correct 907/967  caught 40/100  false alarms 0  (0s)
+      area_cosine_0.65: fold 1/14
+      area_cosine_0.65: fold 2/14
+      area_cosine_0.65: fold 3/14
+      area_cosine_0.65: fold 4/14
+      area_cosine_0.65: fold 5/14
+      area_cosine_0.65: fold 6/14
+      area_cosine_0.65: fold 7/14
+      area_cosine_0.65: fold 8/14
+      area_cosine_0.65: fold 9/14
+      area_cosine_0.65: fold 10/14
+      area_cosine_0.65: fold 11/14
+      area_cosine_0.65: fold 12/14
+      area_cosine_0.65: fold 13/14
+      area_cosine_0.65: fold 14/14
+  clip    cameras  area_cosine_0.65 points   667  correct 867/967  caught 0/100  false alarms 0  (0s)
+      area_cosine: fold 1/14
+      area_cosine: fold 2/14
+      area_cosine: fold 3/14
+      area_cosine: fold 4/14
+      area_cosine: fold 5/14
+      area_cosine: fold 6/14
+      area_cosine: fold 7/14
+      area_cosine: fold 8/14
+      area_cosine: fold 9/14
+      area_cosine: fold 10/14
+      area_cosine: fold 11/14
+      area_cosine: fold 12/14
+      area_cosine: fold 13/14
+      area_cosine: fold 14/14
+  clip    cameras  area_cosine      points   667  correct 867/967  caught 0/100  false alarms 0  (0s)
+      classifier: fold 1/14
+      classifier: fold 2/14
+      classifier: fold 3/14
+      classifier: fold 4/14
+      classifier: fold 5/14
+      classifier: fold 6/14
+      classifier: fold 7/14
+      classifier: fold 8/14
+      classifier: fold 9/14
+      classifier: fold 10/14
+      classifier: fold 11/14
+      classifier: fold 12/14
+      classifier: fold 13/14
+      classifier: fold 14/14
+  clip    cameras  classifier       points   679  correct 871/967  caught 13/100  false alarms 9  product id 196/817  (64s)
+      gsd_only: fold 1/14
+      gsd_only: fold 2/14
+      gsd_only: fold 3/14
+      gsd_only: fold 4/14
+      gsd_only: fold 5/14
+      gsd_only: fold 6/14
+      gsd_only: fold 7/14
+      gsd_only: fold 8/14
+      gsd_only: fold 9/14
+      gsd_only: fold 10/14
+      gsd_only: fold 11/14
+      gsd_only: fold 12/14
+      gsd_only: fold 13/14
+      gsd_only: fold 14/14
+  clip    cameras  gsd_only         points   445  correct 793/967  caught 27/100  false alarms 101  product id 361/817  (3s)
+      classifier+gsd: fold 1/14
+      classifier+gsd: fold 2/14
+      classifier+gsd: fold 3/14
+      classifier+gsd: fold 4/14
+      classifier+gsd: fold 5/14
+      classifier+gsd: fold 6/14
+      classifier+gsd: fold 7/14
+      classifier+gsd: fold 8/14
+      classifier+gsd: fold 9/14
+      classifier+gsd: fold 10/14
+      classifier+gsd: fold 11/14
+      classifier+gsd: fold 12/14
+      classifier+gsd: fold 13/14
+      classifier+gsd: fold 14/14
+  clip    cameras  classifier+gsd   points   472  correct 802/967  caught 24/100  false alarms 89  product id 385/817  (191s)
+      text: fold 1/14
+      text: fold 2/14
+      text: fold 3/14
+      text: fold 4/14
+      text: fold 5/14
+      text: fold 6/14
+      text: fold 7/14
+      text: fold 8/14
+      text: fold 9/14
+      text: fold 10/14
+      text: fold 11/14
+      text: fold 12/14
+      text: fold 13/14
+      text: fold 14/14
+  clip    cameras  text             points   748  correct 894/967  caught 27/100  false alarms 0  (0s)
+  clip    final classifier: threshold 0.3, flags 109 of 1962 areas
+  clip    final classifier+gsd: threshold 0.01, flags 76 of 1962 areas
+  clip    time: 682 ms/image, 63.5 ms/area, training 3.1s
+== dinov2
+      area_cosine_0.65: fold 1/5
+      area_cosine_0.65: fold 2/5
+      area_cosine_0.65: fold 3/5
+      area_cosine_0.65: fold 4/5
+      area_cosine_0.65: fold 5/5
+  dinov2  images   area_cosine_0.65 points   796  correct 910/967  caught 79/100  false alarms 36  (0s)
+      area_cosine: fold 1/5
+      area_cosine: fold 2/5
+      area_cosine: fold 3/5
+      area_cosine: fold 4/5
+      area_cosine: fold 5/5
+  dinov2  images   area_cosine      points   817  correct 917/967  caught 79/100  false alarms 29  (0s)
+      classifier: fold 1/5
+      classifier: fold 2/5
+      classifier: fold 3/5
+      classifier: fold 4/5
+      classifier: fold 5/5
+  dinov2  images   classifier       points   835  correct 923/967  caught 60/100  false alarms 4  product id 808/817  (29s)
+      gsd_only: fold 1/5
+      gsd_only: fold 2/5
+      gsd_only: fold 3/5
+      gsd_only: fold 4/5
+      gsd_only: fold 5/5
+  dinov2  images   gsd_only         points   541  correct 825/967  caught 23/100  false alarms 65  product id 443/817  (4s)
+      classifier+gsd: fold 1/5
+      classifier+gsd: fold 2/5
+      classifier+gsd: fold 3/5
+      classifier+gsd: fold 4/5
+      classifier+gsd: fold 5/5
+  dinov2  images   classifier+gsd   points   829  correct 921/967  caught 59/100  false alarms 5  product id 806/817  (105s)
+      area_cosine_0.65: fold 1/14
+      area_cosine_0.65: fold 2/14
+      area_cosine_0.65: fold 3/14
+      area_cosine_0.65: fold 4/14
+      area_cosine_0.65: fold 5/14
+      area_cosine_0.65: fold 6/14
+      area_cosine_0.65: fold 7/14
+      area_cosine_0.65: fold 8/14
+      area_cosine_0.65: fold 9/14
+      area_cosine_0.65: fold 10/14
+      area_cosine_0.65: fold 11/14
+      area_cosine_0.65: fold 12/14
+      area_cosine_0.65: fold 13/14
+      area_cosine_0.65: fold 14/14
+  dinov2  cameras  area_cosine_0.65 points   667  correct 867/967  caught 0/100  false alarms 0  (0s)
+      area_cosine: fold 1/14
+      area_cosine: fold 2/14
+      area_cosine: fold 3/14
+      area_cosine: fold 4/14
+      area_cosine: fold 5/14
+      area_cosine: fold 6/14
+      area_cosine: fold 7/14
+      area_cosine: fold 8/14
+      area_cosine: fold 9/14
+      area_cosine: fold 10/14
+      area_cosine: fold 11/14
+      area_cosine: fold 12/14
+      area_cosine: fold 13/14
+      area_cosine: fold 14/14
+  dinov2  cameras  area_cosine      points   667  correct 867/967  caught 0/100  false alarms 0  (0s)
+      classifier: fold 1/14
+      classifier: fold 2/14
+      classifier: fold 3/14
+      classifier: fold 4/14
+      classifier: fold 5/14
+      classifier: fold 6/14
+      classifier: fold 7/14
+      classifier: fold 8/14
+      classifier: fold 9/14
+      classifier: fold 10/14
+      classifier: fold 11/14
+      classifier: fold 12/14
+      classifier: fold 13/14
+      classifier: fold 14/14
+  dinov2  cameras  classifier       points   721  correct 885/967  caught 24/100  false alarms 6  product id 217/817  (76s)
+      gsd_only: fold 1/14
+      gsd_only: fold 2/14
+      gsd_only: fold 3/14
+      gsd_only: fold 4/14
+      gsd_only: fold 5/14
+      gsd_only: fold 6/14
+      gsd_only: fold 7/14
+      gsd_only: fold 8/14
+      gsd_only: fold 9/14
+      gsd_only: fold 10/14
+      gsd_only: fold 11/14
+      gsd_only: fold 12/14
+      gsd_only: fold 13/14
+      gsd_only: fold 14/14
+  dinov2  cameras  gsd_only         points   538  correct 824/967  caught 22/100  false alarms 65  product id 443/817  (5s)
+      classifier+gsd: fold 1/14
+      classifier+gsd: fold 2/14
+      classifier+gsd: fold 3/14
+      classifier+gsd: fold 4/14
+      classifier+gsd: fold 5/14
+      classifier+gsd: fold 6/14
+      classifier+gsd: fold 7/14
+      classifier+gsd: fold 8/14
+      classifier+gsd: fold 9/14
+      classifier+gsd: fold 10/14
+      classifier+gsd: fold 11/14
+      classifier+gsd: fold 12/14
+      classifier+gsd: fold 13/14
+      classifier+gsd: fold 14/14
+  dinov2  cameras  classifier+gsd   points   601  correct 845/967  caught 22/100  false alarms 44  product id 477/817  (276s)
+  dinov2  final classifier: threshold 0.2, flags 100 of 1962 areas
+  dinov2  final classifier+gsd: threshold 0.1, flags 95 of 1962 areas
+  dinov2  time: 860 ms/image, 80.0 ms/area, training 4.4s
+wrote /home/afsc/Downloads/hack/LemmaVeggies/backend/results/phase2.md and /home/afsc/Downloads/hack/LemmaVeggies/backend/results/phase2_predictions.csv
+1962 areas, 967 labelled (100 non-compliant), 91 labelled images, granularity variety
+== clip
+      area_cosine_0.65: fold 1/5
+      area_cosine_0.65: fold 2/5
+      area_cosine_0.65: fold 3/5
+      area_cosine_0.65: fold 4/5
+      area_cosine_0.65: fold 5/5
+  clip    images   area_cosine_0.65 points   769  correct 901/967  caught 46/100  false alarms 12  (0s)
+      area_cosine: fold 1/5
+      area_cosine: fold 2/5
+      area_cosine: fold 3/5
+      area_cosine: fold 4/5
+      area_cosine: fold 5/5
+  clip    images   area_cosine      points   778  correct 904/967  caught 65/100  false alarms 28  (0s)
+      classifier: fold 1/5
+      classifier: fold 2/5
+      classifier: fold 3/5
+      classifier: fold 4/5
+      classifier: fold 5/5
+  clip    images   classifier       points   799  correct 911/967  caught 50/100  false alarms 6  product id 804/817  (20s)
+      gsd_only: fold 1/5
+      gsd_only: fold 2/5
+      gsd_only: fold 3/5
+      gsd_only: fold 4/5
+      gsd_only: fold 5/5
+  clip    images   gsd_only         points   508  correct 814/967  caught 41/100  false alarms 94  product id 338/817  (5s)
+      classifier+gsd: fold 1/5
+      classifier+gsd: fold 2/5
+      classifier+gsd: fold 3/5
+      classifier+gsd: fold 4/5
+      classifier+gsd: fold 5/5
+  clip    images   classifier+gsd   points   847  correct 927/967  caught 61/100  false alarms 1  product id 799/817  (75s)
+      text: fold 1/5
+      text: fold 2/5
+      text: fold 3/5
+      text: fold 4/5
+      text: fold 5/5
+  clip    images   text             points   787  correct 907/967  caught 40/100  false alarms 0  (0s)
+      area_cosine_0.65: fold 1/14
+      area_cosine_0.65: fold 2/14
+      area_cosine_0.65: fold 3/14
+      area_cosine_0.65: fold 4/14
+      area_cosine_0.65: fold 5/14
+      area_cosine_0.65: fold 6/14
+      area_cosine_0.65: fold 7/14
+      area_cosine_0.65: fold 8/14
+      area_cosine_0.65: fold 9/14
+      area_cosine_0.65: fold 10/14
+      area_cosine_0.65: fold 11/14
+      area_cosine_0.65: fold 12/14
+      area_cosine_0.65: fold 13/14
+      area_cosine_0.65: fold 14/14
+  clip    cameras  area_cosine_0.65 points   667  correct 867/967  caught 0/100  false alarms 0  (0s)
+      area_cosine: fold 1/14
+      area_cosine: fold 2/14
+      area_cosine: fold 3/14
+      area_cosine: fold 4/14
+      area_cosine: fold 5/14
+      area_cosine: fold 6/14
+      area_cosine: fold 7/14
+      area_cosine: fold 8/14
+      area_cosine: fold 9/14
+      area_cosine: fold 10/14
+      area_cosine: fold 11/14
+      area_cosine: fold 12/14
+      area_cosine: fold 13/14
+      area_cosine: fold 14/14
+  clip    cameras  area_cosine      points   667  correct 867/967  caught 0/100  false alarms 0  (0s)
+      classifier: fold 1/14
+      classifier: fold 2/14
+      classifier: fold 3/14
+      classifier: fold 4/14
+      classifier: fold 5/14
+      classifier: fold 6/14
+      classifier: fold 7/14
+      classifier: fold 8/14
+      classifier: fold 9/14
+      classifier: fold 10/14
+      classifier: fold 11/14
+      classifier: fold 12/14
+      classifier: fold 13/14
+      classifier: fold 14/14
+  clip    cameras  classifier       points   670  correct 868/967  caught 11/100  false alarms 10  product id 169/817  (58s)
+      gsd_only: fold 1/14
+      gsd_only: fold 2/14
+      gsd_only: fold 3/14
+      gsd_only: fold 4/14
+      gsd_only: fold 5/14
+      gsd_only: fold 6/14
+      gsd_only: fold 7/14
+      gsd_only: fold 8/14
+      gsd_only: fold 9/14
+      gsd_only: fold 10/14
+      gsd_only: fold 11/14
+      gsd_only: fold 12/14
+      gsd_only: fold 13/14
+      gsd_only: fold 14/14
+  clip    cameras  gsd_only         points   508  correct 814/967  caught 41/100  false alarms 94  product id 338/817  (5s)
+      classifier+gsd: fold 1/14
+      classifier+gsd: fold 2/14
+      classifier+gsd: fold 3/14
+      classifier+gsd: fold 4/14
+      classifier+gsd: fold 5/14
+      classifier+gsd: fold 6/14
+      classifier+gsd: fold 7/14
+      classifier+gsd: fold 8/14
+      classifier+gsd: fold 9/14
+      classifier+gsd: fold 10/14
+      classifier+gsd: fold 11/14
+      classifier+gsd: fold 12/14
+      classifier+gsd: fold 13/14
+      classifier+gsd: fold 14/14
+  clip    cameras  classifier+gsd   points   544  correct 826/967  caught 34/100  false alarms 75  product id 358/817  (197s)
+      text: fold 1/14
+      text: fold 2/14
+      text: fold 3/14
+      text: fold 4/14
+      text: fold 5/14
+      text: fold 6/14
+      text: fold 7/14
+      text: fold 8/14
+      text: fold 9/14
+      text: fold 10/14
+      text: fold 11/14
+      text: fold 12/14
+      text: fold 13/14
+      text: fold 14/14
+  clip    cameras  text             points   748  correct 894/967  caught 27/100  false alarms 0  (0s)
+  clip    final classifier: threshold 0.2, flags 96 of 1962 areas
+  clip    final classifier+gsd: threshold 0.02, flags 93 of 1962 areas
+  clip    time: 672 ms/image, 62.5 ms/area, training 4.3s
+== dinov2
+      area_cosine_0.65: fold 1/5
+      area_cosine_0.65: fold 2/5
+      area_cosine_0.65: fold 3/5
+      area_cosine_0.65: fold 4/5
+      area_cosine_0.65: fold 5/5
+  dinov2  images   area_cosine_0.65 points   796  correct 910/967  caught 79/100  false alarms 36  (0s)
+      area_cosine: fold 1/5
+      area_cosine: fold 2/5
+      area_cosine: fold 3/5
+      area_cosine: fold 4/5
+      area_cosine: fold 5/5
+  dinov2  images   area_cosine      points   817  correct 917/967  caught 79/100  false alarms 29  (0s)
+      classifier: fold 1/5
+      classifier: fold 2/5
+      classifier: fold 3/5
+      classifier: fold 4/5
+      classifier: fold 5/5
+  dinov2  images   classifier       points   823  correct 919/967  caught 58/100  false alarms 6  product id 806/817  (28s)
+      gsd_only: fold 1/5
+      gsd_only: fold 2/5
+      gsd_only: fold 3/5
+      gsd_only: fold 4/5
+      gsd_only: fold 5/5
+  dinov2  images   gsd_only         points   571  correct 835/967  caught 34/100  false alarms 66  product id 400/817  (5s)
+      classifier+gsd: fold 1/5
+      classifier+gsd: fold 2/5
+      classifier+gsd: fold 3/5
+      classifier+gsd: fold 4/5
+      classifier+gsd: fold 5/5
+  dinov2  images   classifier+gsd   points   874  correct 936/967  caught 72/100  false alarms 3  product id 805/817  (92s)
+      area_cosine_0.65: fold 1/14
+      area_cosine_0.65: fold 2/14
+      area_cosine_0.65: fold 3/14
+      area_cosine_0.65: fold 4/14
+      area_cosine_0.65: fold 5/14
+      area_cosine_0.65: fold 6/14
+      area_cosine_0.65: fold 7/14
+      area_cosine_0.65: fold 8/14
+      area_cosine_0.65: fold 9/14
+      area_cosine_0.65: fold 10/14
+      area_cosine_0.65: fold 11/14
+      area_cosine_0.65: fold 12/14
+      area_cosine_0.65: fold 13/14
+      area_cosine_0.65: fold 14/14
+  dinov2  cameras  area_cosine_0.65 points   667  correct 867/967  caught 0/100  false alarms 0  (0s)
+      area_cosine: fold 1/14
+      area_cosine: fold 2/14
+      area_cosine: fold 3/14
+      area_cosine: fold 4/14
+      area_cosine: fold 5/14
+      area_cosine: fold 6/14
+      area_cosine: fold 7/14
+      area_cosine: fold 8/14
+      area_cosine: fold 9/14
+      area_cosine: fold 10/14
+      area_cosine: fold 11/14
+      area_cosine: fold 12/14
+      area_cosine: fold 13/14
+      area_cosine: fold 14/14
+  dinov2  cameras  area_cosine      points   667  correct 867/967  caught 0/100  false alarms 0  (0s)
+      classifier: fold 1/14
+      classifier: fold 2/14
+      classifier: fold 3/14
+      classifier: fold 4/14
+      classifier: fold 5/14
+      classifier: fold 6/14
+      classifier: fold 7/14
+      classifier: fold 8/14
+      classifier: fold 9/14
+      classifier: fold 10/14
+      classifier: fold 11/14
+      classifier: fold 12/14
+      classifier: fold 13/14
+      classifier: fold 14/14
+  dinov2  cameras  classifier       points   721  correct 885/967  caught 24/100  false alarms 6  product id 190/817  (73s)
+      gsd_only: fold 1/14
+      gsd_only: fold 2/14
+      gsd_only: fold 3/14
+      gsd_only: fold 4/14
+      gsd_only: fold 5/14
+      gsd_only: fold 6/14
+      gsd_only: fold 7/14
+      gsd_only: fold 8/14
+      gsd_only: fold 9/14
+      gsd_only: fold 10/14
+      gsd_only: fold 11/14
+      gsd_only: fold 12/14
+      gsd_only: fold 13/14
+      gsd_only: fold 14/14
+  dinov2  cameras  gsd_only         points   553  correct 829/967  caught 30/100  false alarms 68  product id 400/817  (5s)
+      classifier+gsd: fold 1/14
+      classifier+gsd: fold 2/14
+      classifier+gsd: fold 3/14

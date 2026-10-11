@@ -5,3 +5,5 @@ torchvision
 pillow
 scikit-learn
 joblib
+open_clip_torch
+timm
