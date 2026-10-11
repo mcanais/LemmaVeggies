@@ -103,6 +103,9 @@ watch(range, loadRange)
           <span v-if="!current.compliant" class="badge bad">
             ✕ Wrong product
           </span>
+          <span v-if="current.occupancy != null" class="badge" title="Share of the area covered by produce">
+            {{ Math.round(current.occupancy * 100) }}% occupied
+          </span>
         </template>
         <button class="pill-button" @click="showOnMap">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true">
@@ -132,7 +135,12 @@ watch(range, loadRange)
         <h2>Stock history</h2>
         <TimeRangePicker v-model="range" :min="area.history[0]?.timestamp" :max="area.history.at(-1)?.timestamp" />
         <StockHistoryChart :history="history" class="chart" />
-        <p class="muted legend"><span class="wrong-marker">✕</span> Purple crosses mark moments with the wrong product in the area.</p>
+        <p class="muted legend">
+          <span class="wrong-marker">✕</span> Purple crosses mark moments with the wrong product in the area.
+          <template v-if="history.some((h) => h.occupancy != null)">
+            <span class="occupancy-marker">- -</span> Dashed line: share of the area covered by produce.
+          </template>
+        </p>
       </section>
     </div>
   </template>
@@ -157,6 +165,7 @@ h2 small { font-weight: 400; margin-left: 6px; }
 .chart { margin-top: 12px; }
 .legend { font-size: 0.85rem; margin: 8px 0 0; }
 .wrong-marker { color: #8e4ec6; font-weight: 700; }
+.occupancy-marker { color: #2f6fd6; font-weight: 700; margin-left: 8px; }
 
 @media (max-width: 768px) {
   .area-header { flex-direction: column; gap: 8px; margin-bottom: 12px; }

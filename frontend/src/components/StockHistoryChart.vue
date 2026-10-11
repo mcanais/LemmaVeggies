@@ -8,13 +8,16 @@ import { useIsMobile } from '../composables/useMediaQuery.js'
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Filler)
 
 const props = defineProps({
-  // [{ timestamp, compliant, stockLevel }]
+  // [{ timestamp, compliant, stockLevel, occupancy? }]
   history: { type: Array, required: true },
 })
 
 const NONCOMPLIANT_COLOR = AREA_STATUSES.wrong.color
 const isMobile = useIsMobile()
 const VALUE_LABELS = Object.fromEntries(Object.values(STOCK_LEVELS).map((l) => [l.value, l.label]))
+const OCCUPANCY_COLOR = '#2f6fd6'
+const hasOccupancy = computed(() => props.history.some((h) => h.occupancy != null))
+const percent = (v) => `${Math.round(v * 100)}%`
 
 const data = computed(() => ({
   labels: props.history.map((h) =>
@@ -41,6 +44,21 @@ const data = computed(() => ({
       pointBorderColor: props.history.map((h) => (h.compliant ? '#ffffff' : NONCOMPLIANT_COLOR)),
       pointBorderWidth: props.history.map((h) => (h.compliant ? 1 : 3)),
     },
+    // Share of the area covered by produce (segmentation model), on the same 0–1 scale.
+    ...(hasOccupancy.value
+      ? [{
+          label: 'Occupied',
+          data: props.history.map((h) => h.occupancy ?? null),
+          cubicInterpolationMode: 'monotone',
+          clip: false,
+          borderColor: OCCUPANCY_COLOR,
+          borderDash: [5, 4],
+          borderWidth: 2,
+          pointRadius: 2,
+          pointBackgroundColor: OCCUPANCY_COLOR,
+          spanGaps: true,
+        }]
+      : []),
   ],
 }))
 
@@ -67,6 +85,7 @@ const options = computed(() => ({
         title: (items) => new Date(props.history[items[0].dataIndex].timestamp * 1000).toLocaleString(),
         label: (item) => {
           const h = props.history[item.dataIndex]
+          if (item.datasetIndex === 1) return `Occupied: ${percent(h.occupancy)}`
           return [`Stock: ${stockLabel(h.stockLevel)}`, h.compliant ? 'Compliant' : '✕ Wrong product']
         },
       },
