@@ -7,6 +7,8 @@ import torchvision.transforms as T
 import numpy as np
 import joblib
 
+HERE = Path(__file__).resolve().parent
+
 device = torch.device("cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu"))
 
 
@@ -96,7 +98,7 @@ def generate_submission(classifier, crops_dir="crops"):
                 output_results[cam_id][timestamp][area_id] = prediction
                 total_images += 1
 
-    out_file = "annotations.json"
+    out_file = HERE / "annotations.json"
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump(output_results, f, indent=4)
     print(f"Processed {total_images} images. Output saved to {out_file}")
