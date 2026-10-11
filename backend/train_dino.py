@@ -12,19 +12,21 @@ from sklearn.linear_model import LogisticRegression
 device = torch.device("cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu"))
 print(f"Using device: {device}")
 
+
 def resolve_path(candidates):
     for p in candidates:
         if Path(p).exists():
             return Path(p).resolve()
     return None
 
+
 def main():
     # 1. Resolve Paths
-    human_file = resolve_path(["labels/human.jsonl", "../labels/human.jsonl"])
+    human_file = resolve_path(["labels/claude.jsonl", "../labels/claude.jsonl"])
     crops_dir = resolve_path(["backend/crops", "crops", "../backend/crops"])
 
     if not human_file:
-        raise FileNotFoundError("Could not find labels/human.jsonl")
+        raise FileNotFoundError("Could not find labels/claude.jsonl")
     if not crops_dir:
         raise FileNotFoundError("Could not find crops folder")
 
@@ -32,20 +34,21 @@ def main():
     records = []
     with open(human_file, "r", encoding="utf-8") as f:
         for line in f:
-            if not line.strip(): continue
+            if not line.strip():
+                continue
             item = json.loads(line)
             img_path = crops_dir / str(item["camera"]) / str(item["area_id"]) / str(item["image"])
-            
+
             if img_path.exists():
                 records.append({
                     "path": img_path,
                     "compliant": 1 if item["planogram_compliant"] else 0,
-                    "stock_label": str(item["stock_value"]) # LR needs string classes
+                    "stock_label": str(item["stock_value"])  # LR needs string classes
                 })
 
     if not records:
         raise ValueError("Dataset is empty. Check your paths.")
-    
+
     print(f"Loaded {len(records)} labeled crops. Loading DINOv2 ViT-B/14...")
 
     # 3. Load DINOv2 (Frozen)
@@ -61,17 +64,17 @@ def main():
     # 4. Extract Features
     print("Extracting embeddings (this will take a moment)...")
     X_train, y_comp, y_stock = [], [], []
-    
+
     with torch.no_grad():
         for i, r in enumerate(records):
             img = Image.open(r["path"]).convert("RGB")
             t = transform(img).unsqueeze(0).to(device)
             feat = dinov2(t).cpu().numpy().flatten()
-            
+
             X_train.append(feat)
             y_comp.append(r["compliant"])
             y_stock.append(r["stock_label"])
-            
+
             if (i + 1) % 100 == 0:
                 print(f"  Extracted {i + 1}/{len(records)} images...")
 
@@ -89,11 +92,12 @@ def main():
     # 6. Save Models
     models_dir = Path("backend/models") if Path("backend").exists() else Path("models")
     models_dir.mkdir(parents=True, exist_ok=True)
-    
+
     joblib.dump(comp_clf, models_dir / "dino_comp_clf.joblib")
     joblib.dump(stock_clf, models_dir / "dino_stock_clf.joblib")
-    
+
     print(f"\nTraining complete. Models saved to {models_dir.resolve()}")
+
 
 if __name__ == "__main__":
     main()
