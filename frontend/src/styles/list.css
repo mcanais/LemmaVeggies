@@ -1,4 +1,4 @@
-/* Row styles shared by AreasList and ProductsList (components/). */
+/* Row styles shared by CamerasList, ProductsList and CameraPage. */
 .rows { list-style: none; margin: 0; padding: 0 2px 0 0; flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
 .row {
   display: flex;
@@ -44,6 +44,13 @@
   place-items: center;
   border-radius: 8px;
   color: var(--accent);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+/* Same tint as the product/camera row next to it. */
+.locate:hover, .locate:focus-visible {
+  outline: none;
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
 }
 
 @media (pointer: coarse) {

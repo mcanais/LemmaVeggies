@@ -1,14 +1,14 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { AREA_STATUSES, UNKNOWN_COLOR, areaStatus } from '../constants/stock.js'
+import { UNKNOWN_COLOR } from '../constants/stock.js'
 import { imageTimestamp, formatTime } from '../utils/time.js'
 import { useMediaQuery } from '../composables/useMediaQuery.js'
 
 const props = defineProps({
   // Image ids of the camera, any order.
   images: { type: Array, required: true },
-  // Area history [{ timestamp, compliant, stockLevel }], used to color each image mark.
-  history: { type: Array, default: () => [] },
+  // (timestamp) => colour of the image mark at that moment.
+  markColor: { type: Function, default: () => UNKNOWN_COLOR },
 })
 
 // Selected image id; null means "latest".
@@ -37,7 +37,7 @@ const selectedIndex = computed(() => {
   return i >= 0 ? i : items.value.length - 1
 })
 const selected = computed(() => items.value[selectedIndex.value])
-const isLatest = computed(() => !model.value || selectedIndex.value === items.value.length - 1)
+const isLatest = computed(() => selectedIndex.value === items.value.length - 1)
 
 // Hour labels along the axis; every 2 hours on long ranges to avoid crowding.
 const ticks = computed(() => {
@@ -49,16 +49,6 @@ const ticks = computed(() => {
   }
   return out
 })
-
-// Color of an image mark: the area's status at (or just before) that moment.
-function markColor(ts) {
-  let state = null
-  for (const h of props.history) {
-    if (h.timestamp <= ts) state = h
-    else break
-  }
-  return state ? AREA_STATUSES[areaStatus(state)]?.color ?? UNKNOWN_COLOR : UNKNOWN_COLOR
-}
 
 function select(index) {
   const i = Math.max(0, Math.min(items.value.length - 1, index))
@@ -117,7 +107,6 @@ function onKeydown(e) {
           <span class="muted">{{ selectedIndex + 1 }} / {{ items.length }}</span>
         </div>
         <button class="nav" :disabled="isLatest" aria-label="Next image" @click="select(selectedIndex + 1)">›</button>
-        <button class="latest" :aria-pressed="isLatest" @click="model = null">Latest</button>
       </div>
 
       <div class="track-wrap">
@@ -171,7 +160,6 @@ function onKeydown(e) {
 .current { display: flex; align-items: baseline; gap: 8px; min-width: 110px; justify-content: center; }
 .current strong { font-variant-numeric: tabular-nums; }
 .current .muted { font-size: 0.8rem; }
-.latest { margin-left: auto; padding: 4px 12px; font-size: 0.85rem; border-radius: 999px; }
 
 .track-wrap { padding: 0 14px; }
 .track {
@@ -245,7 +233,6 @@ function onKeydown(e) {
 /* Bigger, thumb-friendly controls on touch screens. */
 @media (pointer: coarse) {
   .nav { width: 44px; height: 44px; min-height: 44px; }
-  .latest { min-height: 36px; }
   .track { height: 44px; }
   .handle { width: 28px; height: 28px; margin: -14px 0 0 -14px; }
   .mark { width: 12px; height: 12px; margin: -6px 0 0 -6px; }

@@ -33,11 +33,13 @@ const data = computed(() => ({
       backgroundColor: 'rgba(47, 111, 79, 0.12)',
       fill: true,
       pointRadius: props.history.map((h) => (h.compliant ? 4 : 8)),
-      pointStyle: props.history.map((h) => (h.compliant ? 'circle' : 'triangle')),
+      pointStyle: props.history.map((h) => (h.compliant ? 'circle' : 'crossRot')),
       pointBackgroundColor: props.history.map((h) =>
         h.compliant ? STOCK_LEVELS[h.stockLevel]?.color : NONCOMPLIANT_COLOR,
       ),
-      pointBorderColor: '#ffffff',
+      // Crosses are drawn by their stroke only, so they take the status colour.
+      pointBorderColor: props.history.map((h) => (h.compliant ? '#ffffff' : NONCOMPLIANT_COLOR)),
+      pointBorderWidth: props.history.map((h) => (h.compliant ? 1 : 3)),
     },
   ],
 }))
@@ -65,7 +67,7 @@ const options = computed(() => ({
         title: (items) => new Date(props.history[items[0].dataIndex].timestamp * 1000).toLocaleString(),
         label: (item) => {
           const h = props.history[item.dataIndex]
-          return [`Stock: ${stockLabel(h.stockLevel)}`, h.compliant ? 'Compliant' : '⚠ Wrong product']
+          return [`Stock: ${stockLabel(h.stockLevel)}`, h.compliant ? 'Compliant' : '✕ Wrong product']
         },
       },
     },
