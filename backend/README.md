@@ -18,6 +18,7 @@ On the current dataset this gives 181 images → 1,962 crops.
 
 ```
 backend/
+├── annotate.py          # CLI: crop + classify an image set -> annotations.json
 ├── crop_areas.py        # CLI: crop all images
 ├── lemma/
 │   ├── planogram.py     # load_areas(): planogram.json -> {camera_id: [Area]}
@@ -82,6 +83,23 @@ crops/
 Crops are grouped by area, so all frames of the same basket across the day sit together.
 
 `index.csv` columns: `camera_id, image, area_id, product_id, product_name, crop_path` (`crop_path` is relative to the output folder). The next step can go through this file to classify each crop and write the submission, which has the same structure as `annotations.json`: `{camera_id: {image: {area_id: {planogram_compliant, stock_level, stock_value}}}}`.
+
+## Annotating a new image set
+
+`annotate.py` does cropping and classification in one go: given a folder with the same `<camera_id>/<timestamp>.jpg` layout as `dataset/train_test` (e.g. the validation set), it crops every planogram area and classifies it with the DINOv2 model from `classify_dino.py`, then writes `annotations.json`. It needs the trained classifiers in `models/` (`dino_comp_clf.joblib`, `dino_stock_clf.joblib`, from `train_dino.py`); the first run downloads the DINOv2 weights (~330 MB) into `~/.cache/torch/hub`.
+
+```sh
+python annotate.py PATH [--planogram FILE] [--out FILE] [--crops DIR]
+```
+
+| Option | Default | Meaning |
+|---|---|---|
+| `PATH` | — | One subfolder per camera id with `*.jpg` images |
+| `--planogram` | `PATH/planogram.json` if present, else `../dataset/planogram.json` | Planogram file |
+| `--out` | `PATH/annotations.json` | Output file |
+| `--crops` | — | Also save the crops as `DIR/<camera_id>/<area_id>/<timestamp>.jpg` (otherwise they stay in memory) |
+
+Crops are made like `crop_areas.py`'s default (`bbox`, masked). On `dataset/train_test` the output matches `annotations.json` exactly (1,962 predictions).
 
 ## Notes for the model step
 
