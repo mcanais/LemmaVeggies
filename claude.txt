@@ -1,0 +1,43 @@
+I read the brief (Enunciado.pdf), the planogram, and a sample of the images. Short answer: with this data you shouldn't train a detector from scratch. There are no labels and only about 180 images. You'll score better by building a per-area pipeline from pretrained models, plus a small hand-labelled set to tune it.
+
+What the repo contains
+
+- Images: 14 fixed ceiling cameras, each 1280×720 with fisheye distortion, about 13 images per camera from one day (dataset/train_test/<cam>/<unix_ts>.jpg). That's 177 images, none annotated.
+- Planogram: dataset/planogram.json has 152 areas covering 94 distinct products. Each area is a four-corner shape in pixel coordinates; some corners are negative because the area runs off the image (e.g. camera 6383).
+- What gets scored: for each area in the 26 hidden validation images (289 areas), you output planogram_compliant and stock_level/stock_value (empty 0, half 0.5, full 1). There's no score for detecting individual items, so tasks 1–2 only matter as far as they feed these two answers.
+- Scoring: compliance is +1 right, −2 wrong. Stock is +1 right, −2 if you guess too low, −3 if you guess too high. An area missing from your output costs −5.
+
+The images show this isn't a static problem. On camera 6215 at 06:00, the middle shelf (bananas in the planogram) is completely empty. By the end of the day the bottom crates, which the planogram says hold oranges (6215_7, 6215_9), are full of bagged bananas. So you get real empty, half and full areas, and genuinely non-compliant ones. The one validation filename in the brief (1751052241) is later than every training image, so expect drift by the end of the day.
+
+Recommended pipeline
+
+1. Crop each area. For every image and area, clip the corners to the image and use cv2.getPerspectiveTransform to warp the area into a straight-on rectangle (say 224×224). From then on you're classifying crops, not detecting objects in whole images.
+
+2. Stock level: measure how much of the empty bin you can still see.
+- The containers look the same everywhere: teal crates or black banana rails. In each area, find the emptiest crop of the day and use it as that area's "empty" reference. Fill is then roughly the fraction of pixels that no longer match it (colour distance or a DINOv2 patch-feature distance). Map that number to empty/half/full with two thresholds.
+- A stronger version: segment the produce inside the area with Grounding DINO + SAM 2 (prompt "fruit / vegetable / bag") and use the mask coverage.
+- Shoppers' hands and bodies will throw this off, so either drop crops containing a person or smooth over neighbouring timestamps.
+
+3. Compliance: compare each crop with what the planogram expects.
+- Visual references: take the earliest non-empty crops of each area, where the planogram is most likely to be correct, and embed them with DINOv2 or CLIP. These become reference examples for that area's product. Since the same product appears in several areas and cameras, you get several examples per product. A crop is non-compliant if it looks much more like a different product than its own.
+- Text check: translate the 94 Portuguese names into short English prompts ("bananas", "oranges in a crate", "bagged potatoes"...) and run CLIP/SigLIP zero-shot as a second opinion.
+- Vision-language model option: send each crop, or the whole image with the area outlined, to a vision-language model. Give it the expected product and a few lookalikes, and ask for the product and the fill level. This is probably the highest-accuracy path for the least code. Check with the organisers whether an external model API is allowed, since the brief stresses "no labels".
+- Default to compliant. An empty area is most likely compliant, but confirm how the organisers label empty areas.
+
+4. Make decisions that fit the scoring. Each model should output probabilities, and you pick the answer with the best expected score:
+- Stock: score(L) = p(L) − 2·P(true > L) − 3·P(true < L). Guessing too high costs more than guessing too low, so when the model is unsure, choose the lower level.
+- Compliance: the penalty is the same both ways, so the cut-off is 0.5. But nearly all areas will be compliant (270 of 289 in the brief's example), so only flag a mismatch when the evidence is strong.
+- Always output every area (a missing one costs −5).
+
+5. "Training" = label a small set yourself and fit on it. The validation set is hidden, so without labels you can't tune anything. Spend about 30–45 minutes labelling around 300 training-image crops with stock level and compliant yes/no. A tiny Streamlit or OpenCV clicker is enough. Use them to:
+- set the fill thresholds,
+- fit a logistic regression on frozen DINOv2/CLIP features (that's your "trained model"),
+- measure your score locally with the official scoring formula.
+
+Practical notes
+
+- Your machine has Python 3.14 with no ML libraries, and PyTorch wheels may lag behind 3.14. Use uv venv -p 3.12 and install torch, open_clip_torch or transformers, opencv-python, and pillow. Running on the M4 GPU (MPS) handles 177 images × ~11 areas in seconds.
+- AGENTS.md and README.md are just placeholders.
+- UI/UX is only used to break ties, but a simple dashboard helps. Draw the area outlines on the image, coloured green/amber/red for stock, with a hatched outline for a wrong product, plus a "restock first" list sorted by empty areas.
+
+I can set up the first steps next: the crop extraction, the labelling tool, the empty-reference stock baseline, and a local scoring script that uses the official formula.
