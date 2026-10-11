@@ -24,7 +24,7 @@ class DinoProduceClassifier:
             T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
 
-        models_dir = Path("backend/models") if Path("backend/models").exists() else Path("models")
+        models_dir = HERE / "models"
 
         try:
             self.comp_clf = joblib.load(models_dir / "dino_comp_clf.joblib")
