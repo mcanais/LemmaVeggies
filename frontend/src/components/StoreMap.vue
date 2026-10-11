@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import Panzoom from '@panzoom/panzoom'
 import CameraBlock from './CameraBlock.vue'
 import { computeLayout } from '../constants/storeLayout.js'
-import { AREA_STATUSES, UNKNOWN_COLOR, areaStatus } from '../constants/stock.js'
+import { AREA_STATUSES, countByStatus } from '../constants/stock.js'
 import { useCanHover } from '../composables/useMediaQuery.js'
 
 const props = defineProps({
@@ -12,12 +12,16 @@ const props = defineProps({
   areasByCamera: { type: Object, required: true },
   isDimmed: { type: Function, default: () => false },
   highlightedIds: { type: Array, default: () => [] },
+  // Camera tapped on the map (touch), ringed while its sheet is open.
+  selectedCameraId: { type: String, default: null },
+  // Cameras located from outside the map, ringed as a whole.
+  highlightedCameraIds: { type: Array, default: () => [] },
   // Phone mode: the map fills its parent's height and can be pinch-zoomed and panned.
   zoomable: { type: Boolean, default: false },
 })
 
-// On touch devices a tap selects an area (`select`) instead of navigating;
-// tapping the empty floor emits `clear`.
+// Clicking a camera opens its page; on touch devices a tap selects the camera
+// (`select`, with its id) instead. Tapping the empty floor emits `clear`.
 const emit = defineEmits(['select', 'clear'])
 
 const router = useRouter()
@@ -37,17 +41,21 @@ const target = ref(null)
 const svg = ref(null)
 
 // --- Tooltip (hover devices only)
-const tooltip = ref(null) // { area, x, y, align }
+const tooltip = ref(null) // { cameraId, counts, x, y, align }
 
-// Anchor the tooltip above the hovered cell, relative to the map container.
-function showTooltip(area, el) {
+// Anchor the tooltip above the hovered camera, relative to the map container.
+function showTooltip(cameraId, el) {
   if (!canHover.value) return
   const c = container.value.getBoundingClientRect()
   const r = el.getBoundingClientRect()
   const x = r.left + r.width / 2 - c.left
   // Near the sides, align the tooltip to the cell's edge so it stays inside the map.
   const align = x < c.width * 0.15 ? 'left' : x > c.width * 0.85 ? 'right' : 'center'
-  tooltip.value = { area, x: align === 'left' ? r.left - c.left : align === 'right' ? r.right - c.left : x, y: r.top - c.top, align }
+  const counts = countByStatus(props.areasByCamera[cameraId] ?? [])
+  const statuses = Object.entries(AREA_STATUSES)
+    .filter(([key]) => counts[key])
+    .map(([key, s]) => ({ key, ...s, count: counts[key] }))
+  tooltip.value = { cameraId, statuses, x: align === 'left' ? r.left - c.left : align === 'right' ? r.right - c.left : x, y: r.top - c.top, align }
 }
 
 function hideTooltip() {
@@ -68,10 +76,10 @@ function onPointerMove(e) {
   if (downAt && Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > TAP_SLOP) dragged = true
 }
 
-function onActivate(area) {
+function onActivate(cameraId) {
   if (dragged) return
-  if (canHover.value) router.push({ name: 'area', params: { areaId: area.id } })
-  else emit('select', area)
+  if (canHover.value) router.push({ name: 'camera', params: { cameraId } })
+  else emit('select', cameraId)
 }
 
 function onBackgroundClick() {
@@ -109,11 +117,14 @@ const zoomIn = () => panzoom?.zoomIn()
 const zoomOut = () => panzoom?.zoomOut()
 const resetZoom = () => panzoom?.reset()
 
-// Zoom and pan so the given areas are centred on screen.
-function focusAreas(ids) {
+// Zoom and pan so the given areas (or cameras) are centred on screen.
+const focusAreas = (ids) => focus('data-area-id', ids)
+const focusCameras = (ids) => focus('data-camera-id', ids)
+
+function focus(attr, ids) {
   if (!panzoom || !ids.length) return
   const rects = ids
-    .map((id) => svg.value.querySelector(`[data-area-id="${CSS.escape(id)}"]`))
+    .map((id) => svg.value.querySelector(`[${attr}="${CSS.escape(id)}"]`))
     .filter(Boolean)
     .map((el) => el.getBBox())
   if (!rects.length) return
@@ -141,7 +152,7 @@ function focusAreas(ids) {
   setTimeout(() => panzoom?.pan(W / 2 - cx, H / 2 - cy, { animate: true }))
 }
 
-defineExpose({ focusAreas, resetZoom })
+defineExpose({ focusAreas, focusCameras, resetZoom })
 </script>
 
 <template>
@@ -164,21 +175,20 @@ defineExpose({ focusAreas, resetZoom })
           @click="onBackgroundClick"
         >
           <rect x="0" y="0" :width="layout.width" :height="layout.height" rx="12" class="floor" />
-          <template v-if="layout.entrance">
-            <rect v-bind="layout.entrance" class="entrance" />
-            <text
-              :x="layout.entrance.x + layout.entrance.width / 2"
-              :y="layout.entrance.y - 8"
-              text-anchor="middle"
-              class="floor-label"
-            >Entrance</text>
-          </template>
+          <!-- Chevrons in the middle of the front wall, pointing into the store. -->
+          <g :transform="`translate(${layout.entrance.x} ${layout.entrance.y})`" class="entrance">
+            <path d="M-14 -50 L0 -62 L14 -50 M-14 -38 L0 -50 L14 -38" class="entrance-chevrons" />
+            <text x="0" y="-18" text-anchor="middle" class="entrance-label">ENTRANCE</text>
+          </g>
           <CameraBlock
             v-for="b in blocks"
             :key="b.cameraId"
             v-bind="b"
             :is-dimmed="isDimmed"
             :highlighted-ids="highlightedIds"
+            :selected="b.cameraId === selectedCameraId"
+            :highlighted="highlightedCameraIds.includes(b.cameraId)"
+            :faded="highlightedCameraIds.length > 0 && !highlightedCameraIds.includes(b.cameraId)"
             @hover="showTooltip"
             @leave="hideTooltip"
             @activate="onActivate"
@@ -200,11 +210,12 @@ defineExpose({ focusAreas, resetZoom })
       :style="{ left: `${tooltip.x}px`, top: `${tooltip.y}px` }"
       role="tooltip"
     >
-      <strong class="product">{{ tooltip.area.productName }}</strong>
-	  <span v-if="!tooltip.area.compliant" class="warn">⚠ Wrong product</span>
+      <strong class="product">Camera {{ tooltip.cameraId }}</strong>
       <span class="details">
-        <span class="dot" :style="{ background: AREA_STATUSES[areaStatus(tooltip.area)]?.color ?? UNKNOWN_COLOR }" />
-        {{ tooltip.area.id }}
+        <span v-for="s in tooltip.statuses" :key="s.key" class="count">
+          <span class="dot" :style="{ background: s.color }" />
+          {{ s.count }} {{ s.label.toLowerCase() }}
+        </span>
       </span>
     </div>
   </div>
@@ -213,8 +224,8 @@ defineExpose({ focusAreas, resetZoom })
 <style scoped>
 .map-container { position: relative; }
 .map-viewport { overflow-x: auto; }
-/* Below this width tiles get too small to read, so the map scrolls instead. */
-.store-map { display: block; width: 100%; min-width: 900px; height: auto; }
+/* Tall floor plan: sized from the window height, width follows the aspect ratio. */
+.store-map { display: block; height: max(640px, calc(100dvh - 140px)); width: auto; max-width: 100%; margin: 0 auto; }
 
 /* Zoomable (phone) mode: fill the parent; Panzoom moves .map-target inside a clipped viewport. */
 .map-container.zoomable { height: 100%; }
@@ -226,7 +237,7 @@ defineExpose({ focusAreas, resetZoom })
   touch-action: none;
 }
 .zoomable .map-target { width: 100%; height: 100%; }
-.zoomable .store-map { min-width: 0; height: 100%; }
+.zoomable .store-map { width: 100%; height: 100%; }
 
 .zoom-controls {
   position: absolute;
@@ -249,8 +260,15 @@ defineExpose({ focusAreas, resetZoom })
 }
 .zoom-controls button + button { border-top: 1px solid var(--border); }
 .floor { fill: var(--floor); stroke: var(--border); stroke-width: 2; }
-.entrance { fill: var(--accent); opacity: 0.6; }
-.floor-label { font-size: 13px; fill: var(--muted); }
+.entrance { pointer-events: none; }
+.entrance-chevrons {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.entrance-label { font-size: 12px; font-weight: 700; letter-spacing: 0.18em; fill: var(--muted); }
 
 .tooltip {
   position: absolute;
@@ -273,6 +291,6 @@ defineExpose({ focusAreas, resetZoom })
 .tooltip.align-left { transform: translate(0, -100%); }
 .tooltip.align-right { transform: translate(-100%, -100%); }
 .product { font-weight: 600; }
-.details { display: inline-flex; align-items: center; gap: 6px; color: #c9ccd1; }
-.warn { color: #ffd166; }
+.details { display: flex; flex-wrap: wrap; gap: 2px 10px; color: #c9ccd1; }
+.count { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
 </style>

@@ -1,21 +1,35 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { AREA_STATUSES, areaStatus } from '../constants/stock.js'
+import { AREA_STATUSES, countByStatus } from '../constants/stock.js'
 
 const props = defineProps({
-  // { id, cameraId, productName, compliant, stockLevel } or null to hide
-  area: { type: Object, default: null },
+  // Camera to preview, or null to hide.
+  cameraId: { type: String, default: null },
+  // That camera's areas: [{ id, productName, compliant, stockLevel }]
+  areas: { type: Array, default: () => [] },
 })
 
 const emit = defineEmits(['close'])
 
 const router = useRouter()
 
-const status = computed(() => (props.area ? AREA_STATUSES[areaStatus(props.area)] : null))
+const statuses = computed(() => {
+  const counts = countByStatus(props.areas)
+  return Object.entries(AREA_STATUSES)
+    .filter(([key]) => counts[key])
+    .map(([key, s]) => ({ key, ...s, count: counts[key] }))
+})
+
+// One bullet per product, with how many of the camera's areas it holds.
+const products = computed(() => {
+  const counts = new Map()
+  for (const a of props.areas) counts.set(a.productName, (counts.get(a.productName) ?? 0) + 1)
+  return [...counts].map(([name, count]) => ({ name, count }))
+})
 
 function open() {
-  router.push({ name: 'area', params: { areaId: props.area.id } })
+  router.push({ name: 'camera', params: { cameraId: props.cameraId } })
 }
 
 // --- Swipe down to dismiss
@@ -36,10 +50,10 @@ function onPointerUp() {
   startY = null
 }
 
-watch(() => props.area?.id, () => (dragY.value = 0))
+watch(() => props.cameraId, () => (dragY.value = 0))
 
 function onKeydown(e) {
-  if (e.key === 'Escape' && props.area) emit('close')
+  if (e.key === 'Escape' && props.cameraId) emit('close')
 }
 onMounted(() => window.addEventListener('keydown', onKeydown))
 onUnmounted(() => window.removeEventListener('keydown', onKeydown))
@@ -48,11 +62,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 <template>
   <Transition name="sheet">
     <section
-      v-if="area"
+      v-if="cameraId"
       class="sheet"
       role="dialog"
-      aria-label="Area details"
-      :style="{ transform: dragY ? `translateY(${dragY}px)` : undefined, '--status-color': status.color }"
+      aria-label="Camera details"
+      :style="{ transform: dragY ? `translateY(${dragY}px)` : undefined }"
     >
       <div
         class="grabber"
@@ -66,14 +80,20 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 
       <div class="content">
         <div class="title-row">
-          <h2>{{ area.productName }}</h2>
+          <h2>Camera {{ cameraId }}</h2>
           <button class="close" aria-label="Close" @click="emit('close')">×</button>
         </div>
         <div class="details">
-          <span class="status-pill">{{ status.icon }} {{ status.label }}</span>
-          <span class="muted">Area {{ area.id }} · Camera {{ area.cameraId }}</span>
+          <span v-for="s in statuses" :key="s.key" class="status-pill" :style="{ '--status-color': s.color }">
+            {{ s.icon }} {{ s.count }} {{ s.label }}
+          </span>
         </div>
-        <button class="open" @click="open">Open area ›</button>
+        <ul class="products">
+          <li v-for="p in products" :key="p.name">
+            {{ p.name }}<span v-if="p.count > 1" class="muted"> × {{ p.count }}</span>
+          </li>
+        </ul>
+        <button class="open" @click="open">Open camera ›</button>
       </div>
     </section>
   </Transition>
@@ -114,7 +134,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   line-height: 1;
   color: var(--muted);
 }
-.details { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 8px 0 14px; font-size: 0.9rem; }
+.details { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 8px 0; font-size: 0.9rem; }
+.products { margin: 0 0 14px; padding-left: 20px; max-height: 30vh; overflow-y: auto; font-size: 0.9rem; line-height: 1.5; }
 .status-pill {
   font-size: 0.8rem;
   font-weight: 600;

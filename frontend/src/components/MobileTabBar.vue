@@ -8,7 +8,7 @@ defineProps({
 
 const TABS = [
   { key: 'map', label: 'Map', icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z' },
-  { key: 'areas', label: 'Areas', icon: 'M4 6h16M4 12h16M4 18h16' },
+  { key: 'cameras', label: 'Cameras', icon: 'M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM12 10a3.5 3.5 0 1 0 0 7a3.5 3.5 0 1 0 0-7z' },
   { key: 'products', label: 'Products', icon: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8' },
   { key: 'stats', label: 'Stats', icon: 'M12 3a9 9 0 1 0 9 9h-9zM15 3.5A9 9 0 0 1 20.5 9H15z' },
 ]

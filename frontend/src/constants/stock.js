@@ -18,7 +18,7 @@ export function stockLabel(level) {
 // statuses are mutually exclusive and add up to the total number of areas.
 // Ordered from most to least urgent.
 export const AREA_STATUSES = {
-  wrong: { label: 'Wrong product', color: '#8e4ec6', icon: '⚠' },
+  wrong: { label: 'Wrong product', color: '#8e4ec6', icon: '✕' },
   empty: { label: STOCK_LEVELS.empty.label, color: STOCK_LEVELS.empty.color, icon: '○' },
   half: { label: STOCK_LEVELS.half.label, color: STOCK_LEVELS.half.color, icon: '◐' },
   full: { label: STOCK_LEVELS.full.label, color: STOCK_LEVELS.full.color, icon: '●' },
@@ -35,4 +35,20 @@ export function countByStatus(areas) {
     if (status in counts) counts[status]++
   }
   return counts
+}
+
+// The area's state at `ts`: the latest history entry at or before it, or null.
+export function statusAt(history, ts) {
+  let state = null
+  for (const h of history) {
+    if (h.timestamp <= ts) state = h
+    else break
+  }
+  return state
+}
+
+// Colour of an area's status at `ts`, grey when there is no reading yet.
+export function statusColorAt(history, ts) {
+  const state = statusAt(history, ts)
+  return state ? AREA_STATUSES[areaStatus(state)]?.color ?? UNKNOWN_COLOR : UNKNOWN_COLOR
 }

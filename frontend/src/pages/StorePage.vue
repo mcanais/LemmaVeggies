@@ -1,14 +1,15 @@
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import StoreMap from '../components/StoreMap.vue'
 import StatusPieChart from '../components/StatusPieChart.vue'
-import AreasList from '../components/AreasList.vue'
+import CamerasList from '../components/CamerasList.vue'
 import ProductsList from '../components/ProductsList.vue'
 import MobileTabBar from '../components/MobileTabBar.vue'
-import AreaSheet from '../components/AreaSheet.vue'
+import CameraSheet from '../components/CameraSheet.vue'
 import { getAreas } from '../api/areas.js'
 import { AREA_STATUSES, areaStatus, countByStatus } from '../constants/stock.js'
-import { useIsMobile } from '../composables/useMediaQuery.js'
+import { useIsMobile, useCanHover } from '../composables/useMediaQuery.js'
 
 const REFRESH_MS = 60_000
 
@@ -16,14 +17,22 @@ const areas = ref([])
 const error = ref(null)
 const loading = ref(true)
 const lastUpdated = ref(null)
-const filter = ref(null) // null | 'wrong' | 'empty' | 'half' | 'full'
-const highlightedIds = ref([]) // areas hovered in the list, shown on the map
-const listTab = ref('areas') // 'areas' | 'products'
+const filter = ref(null) // null | 'wrong' | 'empty' | 'half' | 'full' (phone only)
+const highlightedIds = ref([]) // areas hovered/located from a list, shown on the map
+const highlightedCameraIds = ref([]) // cameras hovered/located from a list, ringed as a whole
+const locatedLabel = ref(null) // set while something picked with "Show on map" is highlighted
+const listTab = ref('cameras') // 'cameras' | 'products'
 
 const isMobile = useIsMobile()
-const mobileTab = ref('map') // 'map' | 'areas' | 'products' | 'stats'
-const selectedId = ref(null) // area tapped on the map (touch), shown in the sheet
+// Without hover (touch screens) the lists need a button to show a row on the map.
+const canHover = useCanHover()
+const mobileTab = ref('map') // 'map' | 'cameras' | 'products' | 'stats'
+const selectedCameraId = ref(null) // camera tapped on the map (touch), shown in the sheet
 const map = ref(null)
+const mapCard = ref(null)
+
+const route = useRoute()
+const router = useRouter()
 
 async function load() {
   try {
@@ -52,44 +61,82 @@ const areasByCamera = computed(() => {
 
 const counts = computed(() => countByStatus(areas.value))
 
+const cameraCount = computed(() => Object.keys(areasByCamera.value).length)
 const productCount = computed(() => new Set(areas.value.map((a) => a.productName)).size)
 
 function selectTab(tab) {
   listTab.value = tab
-  highlightedIds.value = []
+  clearMapSelection()
 }
 
-const selectedArea = computed(() => areas.value.find((a) => a.id === selectedId.value) ?? null)
+// List hover only highlights while nothing is located, so hovering doesn't wipe a locate.
+function hoverAreas(ids) {
+  if (!locatedLabel.value) highlightedIds.value = ids
+}
+function hoverCameras(ids) {
+  if (!locatedLabel.value) highlightedCameraIds.value = ids
+}
 
-// The tapped area is ringed on the map too.
-const mapHighlights = computed(() =>
-  selectedId.value && !highlightedIds.value.includes(selectedId.value)
-    ? [...highlightedIds.value, selectedId.value]
-    : highlightedIds.value,
+// Cameras with an area needing action now, shown as a badge on the Cameras tab.
+const urgentCount = computed(
+  () => Object.values(areasByCamera.value).filter((list) => list.some((a) => ['wrong', 'empty'].includes(areaStatus(a)))).length,
 )
 
-// Areas needing action now, shown as a badge on the Areas tab.
-const urgentCount = computed(() => counts.value.wrong + counts.value.empty)
-
-// "Show on map" from a list: jump to the map and centre on those areas.
+// "Show on map": jump to the map and centre on those areas.
 async function locate(ids) {
-  highlightedIds.value = ids
-  selectedId.value = ids.length === 1 ? ids[0] : null
+  const located = areas.value.filter((a) => ids.includes(a.id))
+  if (!located.length) return
+  const names = new Set(located.map((a) => a.productName))
+  clearMapSelection()
+  highlightedIds.value = located.map((a) => a.id)
+  locatedLabel.value = names.size === 1 ? [...names][0] : `${located.length} areas`
+  await showMap()
+  map.value?.focusAreas(highlightedIds.value)
+}
+
+// "Show on map" for whole cameras: ring them rather than their areas.
+async function locateCameras(ids) {
+  const located = ids.filter((id) => id in areasByCamera.value)
+  if (!located.length) return
+  clearMapSelection()
+  highlightedCameraIds.value = located
+  locatedLabel.value = located.length === 1 ? `Camera ${located[0]}` : `${located.length} cameras`
+  await showMap()
+  map.value?.focusCameras(located)
+}
+
+async function showMap() {
   mobileTab.value = 'map'
   await nextTick()
-  map.value?.focusAreas(ids)
+  if (!isMobile.value) mapCard.value?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
 }
 
 function clearMapSelection() {
-  selectedId.value = null
+  selectedCameraId.value = null
   highlightedIds.value = []
+  highlightedCameraIds.value = []
+  locatedLabel.value = null
 }
 
 // Leaving the map closes the sheet; highlights from the lists only make sense on the map.
 watch(mobileTab, (tab) => {
-  if (tab !== 'map') selectedId.value = null
+  if (tab !== 'map') selectedCameraId.value = null
 })
 watch(isMobile, () => clearMapSelection())
+
+// Other pages link here with ?locate=<areaId>[,<areaId>…] or ?camera=<cameraId>.
+// Handled once the areas are loaded, then dropped from the URL so a refresh
+// doesn't locate again.
+watch(
+  [() => route.query.locate, () => route.query.camera, loading],
+  ([areaIds, cameraIds, isLoading]) => {
+    if ((!areaIds && !cameraIds) || isLoading) return
+    if (cameraIds) locateCameras(String(cameraIds).split(','))
+    else locate(String(areaIds).split(','))
+    router.replace({ query: {} })
+  },
+  { immediate: true },
+)
 
 const filters = computed(() =>
   Object.entries(AREA_STATUSES).map(([key, s]) => ({ key, label: s.label, color: s.color, count: counts.value[key] })),
@@ -136,23 +183,25 @@ function isDimmed(area) {
             zoomable
             :areas-by-camera="areasByCamera"
             :is-dimmed="isDimmed"
-            :highlighted-ids="mapHighlights"
-            @select="selectedId = $event.id"
+            :highlighted-ids="highlightedIds"
+            :highlighted-camera-ids="highlightedCameraIds"
+            :selected-camera-id="selectedCameraId"
+            @select="selectedCameraId = $event"
             @clear="clearMapSelection"
           />
-          <button v-if="highlightedIds.length > 1" class="clear-highlight" @click="clearMapSelection">
-            Showing {{ highlightedIds.length }} areas <span aria-hidden="true">×</span>
+          <button v-if="locatedLabel" class="clear-highlight" @click="clearMapSelection">
+            Showing {{ locatedLabel }} <span aria-hidden="true">×</span>
           </button>
         </div>
       </div>
 
       <KeepAlive>
-        <AreasList
-          v-if="mobileTab === 'areas'"
+        <CamerasList
+          v-if="mobileTab === 'cameras'"
           class="card m-panel"
           locatable
           :areas="areas"
-          @locate="locate"
+          @locate="locateCameras"
         />
         <ProductsList
           v-else-if="mobileTab === 'products'"
@@ -168,42 +217,39 @@ function isDimmed(area) {
         <StatusPieChart :counts="counts" />
       </section>
 
-      <MobileTabBar v-model="mobileTab" :badges="{ areas: urgentCount }" />
+      <MobileTabBar v-model="mobileTab" :badges="{ cameras: urgentCount }" />
     </template>
 
     <!-- Desktop / tablet -->
     <template v-else>
-      <div class="filters" role="group" aria-label="Filter areas">
-        <button v-for="f in filters" :key="f.key" :aria-pressed="filter === f.key" @click="toggle(f.key)">
-          <span class="dot" :style="{ background: f.color }" />
-          {{ f.label }} <strong>{{ f.count }}</strong>
-        </button>
-      </div>
-
       <div class="layout">
-        <div class="card map-card">
+        <div ref="mapCard" class="card map-card">
           <StoreMap
             :areas-by-camera="areasByCamera"
-            :is-dimmed="isDimmed"
-            :highlighted-ids="mapHighlights"
-            @select="selectedId = $event.id"
-            @clear="selectedId = null"
+            :highlighted-ids="highlightedIds"
+            :highlighted-camera-ids="highlightedCameraIds"
+            :selected-camera-id="selectedCameraId"
+            @select="selectedCameraId = $event"
+            @clear="clearMapSelection"
           />
+          <button v-if="locatedLabel" class="clear-highlight" @click="clearMapSelection">
+            Showing {{ locatedLabel }} <span aria-hidden="true">×</span>
+          </button>
         </div>
 
         <section class="card list-card">
           <div class="tabs" role="tablist" aria-label="List by">
-            <button role="tab" class="tab" :aria-selected="listTab === 'areas'" @click="selectTab('areas')">
-              Areas <span class="tab-count">{{ areas.length }}</span>
+            <button role="tab" class="tab" :aria-selected="listTab === 'cameras'" @click="selectTab('cameras')">
+              Cameras <span class="tab-count">{{ cameraCount }}</span>
             </button>
             <button role="tab" class="tab" :aria-selected="listTab === 'products'" @click="selectTab('products')">
               Products <span class="tab-count">{{ productCount }}</span>
             </button>
           </div>
-          <!-- KeepAlive preserves each list's filters/expanded rows when switching tabs. -->
+          <!-- KeepAlive preserves each list's search/filters when switching tabs. -->
           <KeepAlive>
-            <AreasList v-if="listTab === 'areas'" :areas="areas" @highlight="highlightedIds = $event" />
-            <ProductsList v-else :areas="areas" @highlight="highlightedIds = $event" />
+            <CamerasList v-if="listTab === 'cameras'" :locatable="!canHover" :areas="areas" @highlight="hoverCameras" @locate="locateCameras" />
+            <ProductsList v-else :locatable="!canHover" :areas="areas" @highlight="hoverAreas" @locate="locate" />
           </KeepAlive>
         </section>
 
@@ -214,8 +260,12 @@ function isDimmed(area) {
       </div>
     </template>
 
-    <!-- Touch devices: tapping a tile previews the area here. -->
-    <AreaSheet :area="selectedArea" @close="selectedId = null" />
+    <!-- Touch devices: tapping a camera previews it here. -->
+    <CameraSheet
+      :camera-id="selectedCameraId"
+      :areas="areasByCamera[selectedCameraId] ?? []"
+      @close="selectedCameraId = null"
+    />
   </div>
 </template>
 
@@ -227,18 +277,19 @@ function isDimmed(area) {
 .filters button { display: inline-flex; align-items: center; gap: 6px; }
 .layout {
   display: grid;
-  /* The map gets most of the width; the list keeps a readable column. */
-  grid-template-columns: minmax(0, 1fr) clamp(340px, 24vw, 460px);
+  /* The tall map takes the width its height needs; the list and stats share the rest. */
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
   grid-template-areas:
     'map list'
-    'stats list';
+    'map stats';
   gap: 16px;
   align-items: start;
 }
-.map-card { grid-area: map; padding: 12px; }
+.map-card { grid-area: map; padding: 12px; position: relative; }
 .stats-card { grid-area: stats; }
 .stats-card h2 { margin: 0 0 12px; font-size: 1.1rem; }
-/* The list fills the height of the map + stats column without stretching it;
+/* The list fills the height left next to the map without stretching it;
    its rows scroll inside. */
 .list-card { grid-area: list; align-self: stretch; height: 0; min-height: 100%; display: flex; flex-direction: column; }
 
@@ -274,14 +325,9 @@ function isDimmed(area) {
 .mobile .updated { font-size: 0.8rem; }
 .mobile .refresh { width: 44px; justify-content: center; padding: 0; }
 .mobile .refresh-label { display: none; }
-.mobile .filters {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
-  margin: 0 -12px 10px;
-  padding: 0 12px;
-}
-.mobile .filters button { flex-shrink: 0; }
+/* Compact chips that wrap, so all of them are visible without scrolling. */
+.mobile .filters { gap: 6px; margin-bottom: 10px; }
+.mobile .filters button { padding: 4px 10px; font-size: 0.85rem; min-height: 36px; border-radius: 999px; }
 
 .m-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .m-map-wrap { position: relative; flex: 1; min-height: 0; }
@@ -304,6 +350,7 @@ function isDimmed(area) {
 @media (max-width: 1100px) {
   .layout {
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
     grid-template-areas: 'map' 'list' 'stats';
   }
   .list-card { height: 560px; min-height: 0; }
