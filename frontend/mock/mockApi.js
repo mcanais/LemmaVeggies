@@ -40,7 +40,9 @@ function loadData() {
         const r = rand()
         if (r < 0.25) level = 2
         else if (r < 0.55) level = Math.max(0, level - 1)
-        return { timestamp, compliant: rand() > 0.08, stockLevel: LEVELS[level] }
+        // Occupancy roughly follows the level: empty ~0–0.15, half ~0.3–0.6, full ~0.7–1.
+        const occupancy = Math.round(Math.min(1, level * 0.35 + rand() * 0.3) * 100) / 100
+        return { timestamp, compliant: rand() > 0.08, stockLevel: LEVELS[level], occupancy }
       })
       areas[p.area_id] = {
         id: p.area_id,
@@ -83,8 +85,8 @@ export default function mockApi() {
       const routes = [
         [/^\/api\/areas\/?$/, (res) =>
           json(res, Object.values(areas).map(({ id, cameraId, productName, history }) => {
-            const latest = history.at(-1) ?? { compliant: true, stockLevel: 'empty' }
-            return { id, cameraId, productName, compliant: latest.compliant, stockLevel: latest.stockLevel }
+            const latest = history.at(-1) ?? { compliant: true, stockLevel: 'empty', occupancy: null }
+            return { id, cameraId, productName, compliant: latest.compliant, stockLevel: latest.stockLevel, occupancy: latest.occupancy }
           }))],
         [/^\/api\/areas\/([^/]+)\/?$/, (res, query, [areaId]) => {
           const area = areas[areaId]
